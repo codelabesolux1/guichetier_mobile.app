@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:guichetier/pages/onborading_page/onboarding.dart';
+import 'package:guichetier/providers/nav_bar_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,17 +30,31 @@ class MyApp extends StatelessWidget {
         // systemNavigationBarDividerColor: Color(0xFF03BE0C),
       ),
     );
-    return MaterialApp(
-      title: 'Guichetier',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => NavBarProvider(),
         ),
-        useMaterial3: true,
-        primarySwatch: Colors.deepOrange,
+      ],
+      child: MaterialApp(
+        title: 'Guichetier',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          appBarTheme: const AppBarTheme(
+            centerTitle: true,
+            elevation: 2,
+            foregroundColor: Color(0xFFE0E0E0),
+            color: Color(0xFFDD3705),
+          ),
+          bottomAppBarColor: const Color(0xFFDD3705),
+          textTheme: GoogleFonts.poppinsTextTheme(
+            Theme.of(context).textTheme,
+          ),
+          useMaterial3: true,
+          primarySwatch: Colors.deepOrange,
+        ),
+        home: const Onbording(),
       ),
-      home: const Onbording(),
     );
   }
 }

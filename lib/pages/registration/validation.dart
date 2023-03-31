@@ -33,7 +33,7 @@ class _ValidationPageState extends State<ValidationPage> {
         child: Center(
           child: Icon(
             CupertinoIcons.checkmark_circle_fill,
-            size: 50,
+            size: 200,
             color: Color(0xFFDD3705),
           ),
         ),
