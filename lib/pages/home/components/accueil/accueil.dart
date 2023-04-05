@@ -233,10 +233,7 @@ class _AccueilState extends State<Accueil> {
         Expanded(
           child: SingleChildScrollView(
             child: Column(
-              children: [
-                // Expanded(
-                //   child: allCategories.homeBody[current],
-                // ),
+              children: [                
                 allCategories.homeBody[current],
               ],
             ),

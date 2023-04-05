@@ -7,7 +7,7 @@ class CompteMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Compte"),
+        title:const Text("Compte"),
       ),
     );
   }
