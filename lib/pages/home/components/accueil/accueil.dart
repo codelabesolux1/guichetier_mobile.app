@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:guichetier/pages/home/components/accueil/components/all_categories.dart';
 
 class Accueil extends StatefulWidget {
   const Accueil({super.key});
@@ -9,40 +10,10 @@ class Accueil extends StatefulWidget {
 }
 
 class _AccueilState extends State<Accueil> {
-  List<String> categories = [
-    "Tous",
-    "Concert",
-    "Foire",
-    "Miss",
-    "Cinema",
-    "Sport",
-  ];
-
-  List homeBody = const [
-    /// TOUS //////////////////////////////////////
-    Text("Tous"),
-    ///////////////////////////////////////////////////////////
-    /// CONCERT //////////////////////////////////////
-    Text("Concert"),
-
-    /// FOIRE //////////////////////////////////////
-    Text("Foire"),
-
-    /// MISS //////////////////////////////////////
-    Text("Miss"),
-
-    /// CINEMA //////////////////////////////////////
-    Text("Cinema"),
-
-    /// SPORT //////////////////////////////////////
-    Text("Sport"),
-
-    ///
-  ];
-
   int current = 0;
   @override
   Widget build(BuildContext context) {
+    AllCategories allCategories = AllCategories();
     return Column(
       children: [
         Container(
@@ -175,8 +146,9 @@ class _AccueilState extends State<Accueil> {
                   const Padding(
                     padding: EdgeInsets.only(left: 8.0),
                     child: Text(
-                      "Catégorie",
+                      "Catégories",
                       style: TextStyle(
+                        fontWeight: FontWeight.w500,
                         color: Color(0xFFE0E0E0),
                       ),
                     ),
@@ -188,7 +160,7 @@ class _AccueilState extends State<Accueil> {
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       physics: const BouncingScrollPhysics(),
-                      itemCount: categories.length,
+                      itemCount: allCategories.categories.length,
                       itemBuilder: (ctx, index) {
                         return GestureDetector(
                           onTap: () {
@@ -218,13 +190,34 @@ class _AccueilState extends State<Accueil> {
                                 top: 8.0,
                                 bottom: 8.0,
                               ),
-                              child: Text(
-                                categories[index],
-                                style: TextStyle(
-                                  color: current == index
-                                      ? const Color(0xFFE0E0E0)
-                                      : Colors.black,
-                                ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    allCategories.categories[index]['icon']
+                                        as IconData,
+                                    color: current == index
+                                        ? const Color(0xFFE0E0E0)
+                                        : Colors.black,
+                                    // size: 40,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 2.5,
+                                      left: 6,
+                                    ),
+                                    child: Text(
+                                      allCategories.categories[index]['title']
+                                          as String,
+                                      style: TextStyle(
+                                        color: current == index
+                                            ? const Color(0xFFE0E0E0)
+                                            : Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -237,11 +230,13 @@ class _AccueilState extends State<Accueil> {
             ],
           ),
         ),
-        SingleChildScrollView(
-          child: Column(
-            children: [
-              homeBody[current],
-            ],
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [                
+                allCategories.homeBody[current],
+              ],
+            ),
           ),
         )
       ],

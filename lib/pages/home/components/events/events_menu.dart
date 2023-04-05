@@ -7,7 +7,7 @@ class EventMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Event"),
+        title:const Text("Event"),
       ),
     );
   }
