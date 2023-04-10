@@ -4,6 +4,8 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:guichetier/pages/onborading_page/onboarding.dart';
 import 'package:guichetier/providers/nav_bar_provider.dart';
+import 'package:guichetier/providers/payement_ticket_provider.dart';
+import 'package:guichetier/providers/recharche_money.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -35,6 +37,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => NavBarProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (context) => PayementTicketProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => RechargeMoney(),
+        ),
       ],
       child: MaterialApp(
         title: 'Guichetier',
@@ -46,6 +54,7 @@ class MyApp extends StatelessWidget {
             foregroundColor: Color(0xFFE0E0E0),
             color: Color(0xFFDD3705),
           ),
+          scaffoldBackgroundColor: const Color(0xFFE9E9E9),
           bottomAppBarColor: const Color(0xFFDD3705),
           textTheme: GoogleFonts.poppinsTextTheme(
             Theme.of(context).textTheme,

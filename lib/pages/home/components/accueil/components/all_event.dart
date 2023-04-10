@@ -102,6 +102,36 @@ class AllEvent extends StatelessWidget {
                               ),
                             ),
                             Positioned(
+                              top: 10,
+                              right: 10,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFFFFF),
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Color(0xffDDDDDD),
+                                      blurRadius: 1.0,
+                                      spreadRadius: 0.0,
+                                      offset: Offset(0.0, 0.0),
+                                    )
+                                  ],
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.only(
+                                    top: 6,
+                                    bottom: 6,
+                                    left: 6,
+                                    right: 6,
+                                  ),
+                                  child: Icon(
+                                    CupertinoIcons.bookmark,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
                               bottom: 10,
                               left: 10,
                               child: Container(

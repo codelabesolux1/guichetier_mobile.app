@@ -5,12 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:guichetier/pages/home/components/accueil/components/events_detail/detail_sliver.dart';
+import 'package:guichetier/pages/home/components/accueil/components/events_detail/payement_ticket.dart';
+import 'package:guichetier/providers/payement_ticket_provider.dart';
+import 'package:provider/provider.dart';
 
 class EventDetail extends StatelessWidget {
   const EventDetail({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final providePayementTicket = Provider.of<PayementTicketProvider>(context);
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent, // <-- SEE HERE
@@ -193,7 +197,19 @@ class EventDetail extends StatelessWidget {
                     // ),
                     children: [
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const PayementTicket(
+                                imageUrl:
+                                    "https://www1.chester.ac.uk/sites/default/files/styles/hero/public/Events%20Management%20festival%20image.jpg?itok=eJ3k-5R6",
+                                price: 3000,
+                                typeTicket: "Ticket simple",
+                              ),
+                            ),
+                          );
+                          providePayementTicket.montantTotal = 3000;
+                        },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5.0),
@@ -211,7 +227,19 @@ class EventDetail extends StatelessWidget {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const PayementTicket(
+                                imageUrl:
+                                    "https://www1.chester.ac.uk/sites/default/files/styles/hero/public/Events%20Management%20festival%20image.jpg?itok=eJ3k-5R6",
+                                price: 5000,
+                                typeTicket: "Ticket VIP",
+                              ),
+                            ),
+                          );
+                          providePayementTicket.montantTotal = 5000;
+                        },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5.0),
@@ -229,7 +257,19 @@ class EventDetail extends StatelessWidget {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const PayementTicket(
+                                imageUrl:
+                                    "https://www1.chester.ac.uk/sites/default/files/styles/hero/public/Events%20Management%20festival%20image.jpg?itok=eJ3k-5R6",
+                                price: 10000,
+                                typeTicket: "Réservation",
+                              ),
+                            ),
+                          );
+                          providePayementTicket.montantTotal = 10000;
+                        },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5.0),
