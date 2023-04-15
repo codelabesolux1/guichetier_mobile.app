@@ -1,12 +1,22 @@
 // ignore_for_file: avoid_print
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:guichetier/pages/registration/validation.dart';
 import 'package:pinput/pinput.dart';
 
+import 'package:guichetier/controllers/local_storage.dart';
+import 'package:guichetier/pages/registration/validation.dart';
+
 class OTPPage extends StatefulWidget {
-  const OTPPage({super.key});
+  const OTPPage({
+    Key? key,
+    required this.phoneNumber,
+    required this.verificationId,
+  }) : super(key: key);
+  final String phoneNumber;
+  final String verificationId;
 
   @override
   State<OTPPage> createState() => _OTPPageState();
@@ -17,6 +27,7 @@ class _OTPPageState extends State<OTPPage> {
   final formKey = GlobalKey<FormState>();
   final pinController = TextEditingController();
   final focusNode = FocusNode();
+  bool _isLoading = false;
   //
   @override
   void dispose() {
@@ -27,6 +38,7 @@ class _OTPPageState extends State<OTPPage> {
 
   @override
   Widget build(BuildContext context) {
+    LocalStorage localStorage = LocalStorage();
     var hSize = MediaQuery.of(context).size.height;
 
     final defaultPinTheme = PinTheme(
@@ -82,8 +94,8 @@ class _OTPPageState extends State<OTPPage> {
                   width: 260,
                 ),
                 SizedBox(height: hSize * 0.025),
-                const Text(
-                  "Veuillez saisir le code que nous venons de vous envoyer sur le numéro",
+                Text(
+                  "Veuillez saisir le code que nous venons de vous envoyer sur le numéro : ${widget.phoneNumber} ",
                   textAlign: TextAlign.center,
                 ),
                 const Gap(
@@ -115,16 +127,98 @@ class _OTPPageState extends State<OTPPage> {
                       right: MediaQuery.of(context).size.width / 3.5,
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ValidationPage(),
-                      ),
-                      (r) => false,
-                    );
-                  },
-                  child: const Text("Vérifier"),
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                          setState(() {
+                            _isLoading = true;
+                          });
+
+                          try {
+                            PhoneAuthCredential credential =
+                                PhoneAuthProvider.credential(
+                                    verificationId: widget.verificationId,
+                                    smsCode: pinController.value.text);
+                            await FirebaseAuth.instance
+                                .signInWithCredential(credential);
+                            CollectionReference snapShot =
+                                FirebaseFirestore.instance.collection('users');
+                            var doc = await snapShot
+                                .doc(FirebaseAuth.instance.currentUser!.uid)
+                                .get();
+                            if (!doc.exists) {
+                              await FirebaseFirestore.instance
+                                  .collection("users")
+                                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                                  .set({
+                                "uid": FirebaseAuth.instance.currentUser!.uid
+                                    .toString(),
+                                "username": '',
+                                "telephone": FirebaseAuth
+                                    .instance.currentUser!.phoneNumber,
+                                "profession": '',
+                                "imageUrl":
+                                    'https://www.nicepng.com/png/detail/128-1280406_view-user-icon-png-user-circle-icon-png.png',
+                                "joinedAt": DateTime.now().toString(),
+                                "createdAt": Timestamp.now(),
+                              }).then(
+                                (value) async {
+                                  _isLoading = false;
+                                  await localStorage
+                                      .saveBoolConnexion()
+                                      .then((value) {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ValidationPage(),
+                                      ),
+                                      (r) => false,
+                                    );
+                                  });
+                                },
+                              );
+                            } else {
+                              _isLoading = false;
+                              await localStorage
+                                  .saveBoolConnexion()
+                                  .then((value) {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ValidationPage(),
+                                  ),
+                                  (r) => false,
+                                );
+                              });
+                            }
+                          } on FirebaseAuthException catch (e) {
+                            setState(() {
+                              _isLoading = false;
+                              print("Code invalide");
+                            });
+                            // ignore: deprecated_member_use
+                            _scaffoldKey.currentState!.showSnackBar(
+                              SnackBar(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 165, 1, 1),
+                                content: Text(e.message.toString()),
+                                // content: Text("Code invalide"),
+                              ),
+                            );
+                          }
+
+                          //////
+                        },
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                          semanticsLabel: "Patienté",
+                          backgroundColor: Color.fromARGB(255, 199, 198, 198),
+                          color: Colors.black,
+                          strokeWidth: 3,
+                        )
+                      : const Text("Vérifier"),
                 ),
               ],
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:guichetier/controllers/local_storage.dart';
 import 'package:guichetier/pages/onborading_page/content_model.dart';
 import 'package:guichetier/pages/registration/phone_registrer.dart';
 
@@ -23,6 +24,7 @@ class _OnbordingState extends State<Onbording> {
 
   @override
   Widget build(BuildContext context) {
+    LocalStorage localStorage = LocalStorage();
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -149,16 +151,18 @@ class _OnbordingState extends State<Onbording> {
                   margin: const EdgeInsets.all(20),
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (currentIndex == contents.length - 1) {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const PhoneNumberRegistration(),
-                          ),
-                          (r) => false,
-                        );
+                        await localStorage.storeGetStarted().then((value) {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const PhoneNumberRegistration(),
+                            ),
+                            (r) => false,
+                          );
+                        });
                       }
                       controller.nextPage(
                         duration: const Duration(milliseconds: 100),

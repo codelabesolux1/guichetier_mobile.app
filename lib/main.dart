@@ -2,17 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:guichetier/pages/home/home_page.dart';
 import 'package:guichetier/pages/onborading_page/onboarding.dart';
+import 'package:guichetier/pages/registration/phone_registrer.dart';
 import 'package:guichetier/providers/nav_bar_provider.dart';
 import 'package:guichetier/providers/payement_ticket_provider.dart';
 import 'package:guichetier/providers/recharche_money.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+int? isViewed;
+bool? boolConnexion;
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  runApp(const MyApp());
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  isViewed = prefs.getInt('GetStartPage');
+  boolConnexion = prefs.getBool('loggedIn');
+  timeago.setLocaleMessages('fr', timeago.FrMessages());
+  timeago.setLocaleMessages('fr_short', timeago.FrShortMessages());
+  initializeDateFormatting('fr_FR', null).then((_) {
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -62,7 +83,12 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           primarySwatch: Colors.deepOrange,
         ),
-        home: const Onbording(),
+        home: isViewed != 0
+            ? const Onbording()
+            : boolConnexion != true
+                ? const PhoneNumberRegistration()
+                : const HomePage(),
+        // const UplodSociete(),
       ),
     );
   }

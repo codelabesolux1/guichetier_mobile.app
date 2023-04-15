@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:guichetier/pages/home/components/accueil/components/all_categories.dart';
 
 class Accueil extends StatefulWidget {
@@ -14,6 +17,8 @@ class _AccueilState extends State<Accueil> {
   @override
   Widget build(BuildContext context) {
     AllCategories allCategories = AllCategories();
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    String uid = FirebaseAuth.instance.currentUser!.uid.toString();
     return Column(
       children: [
         Container(
@@ -79,12 +84,29 @@ class _AccueilState extends State<Accueil> {
                           ),
                         ),
                       ),
-                      const Text(
-                        "Gotflo",
-                        style: TextStyle(
-                          color: Color(0xFFE0E0E0),
-                        ),
-                      ),
+                      // const Text(
+                      //   "Gotflo",
+                      //   style: TextStyle(
+                      //     color: Color(0xFFE0E0E0),
+                      //   ),
+                      // ),
+                      StreamBuilder(
+                          stream: users.doc(uid).snapshots(),
+                          builder:
+                              (BuildContext context, AsyncSnapshot snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Text("");
+                            }
+                            return Text(
+                              snapshot.data.data()["username"]!.isEmpty
+                                  ? ""
+                                  : snapshot.data.data()["username"],
+                              style: GoogleFonts.poppins(
+                                  color: const Color(0xFFE0E0E0)),
+                            );
+                          }),
+
                       IconButton(
                         onPressed: () {},
                         icon: const Icon(
@@ -233,7 +255,7 @@ class _AccueilState extends State<Accueil> {
         Expanded(
           child: SingleChildScrollView(
             child: Column(
-              children: [                
+              children: [
                 allCategories.homeBody[current],
               ],
             ),

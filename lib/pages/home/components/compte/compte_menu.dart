@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:guichetier/pages/home/components/compte/a_propos/a_propos.dart';
 import 'package:guichetier/pages/home/components/compte/comment_marche/comment_marche.dart';
+import 'package:guichetier/pages/home/components/compte/components/edit_profil.dart';
 import 'package:guichetier/pages/home/components/compte/components/profil_firt_info.dart';
 import 'package:guichetier/pages/home/components/compte/components/version_apk.dart';
 import 'package:guichetier/pages/home/components/compte/compte_courant/compte_courant.dart';
@@ -15,6 +18,8 @@ class CompteMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    String uid = FirebaseAuth.instance.currentUser!.uid.toString();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Compte"),
@@ -44,7 +49,7 @@ class CompteMenu extends StatelessWidget {
                     top: MediaQuery.of(context).size.height / 30,
                     left: 15,
                     right: 15,
-                    child: const ProfilFirtInfo(),
+                    child: ProfilFirtInfo(users: users, uid: uid),
                     // child: ProfilFirtInfo(users: users, uid: uid),
                   ),
                 ],
@@ -70,13 +75,13 @@ class CompteMenu extends StatelessWidget {
                         ),
                         child: MaterialButton(
                           onPressed: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) =>
-                            //         const ClientEditProfileBody(),
-                            //   ),
-                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const ClientEditProfileBody(),
+                              ),
+                            );
                           },
                           child: CostumWidgetProfil(
                             title: "Mes informations",

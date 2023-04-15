@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:guichetier/pages/registration/otp.dart';
@@ -24,6 +25,32 @@ class _PhoneNumberRegistrationState extends State<PhoneNumberRegistration> {
   var phoneNumber;
   // bool _isLoading = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+
+  bool _isLoading = false;
+
+  // Future<void> _verifyPhoneNumber() async {
+  //   await _auth.verifyPhoneNumber(
+  //     phoneNumber: _phoneNumber,
+  //     timeout: const Duration(seconds: 0),
+  //     verificationCompleted: (PhoneAuthCredential credential) {
+  //       // Auto-retrieve the SMS verification code and complete sign-in.
+  //       _auth.signInWithCredential(credential);
+  //     },
+  //     verificationFailed: (FirebaseAuthException e) {
+  //       if (e.code == 'invalid-phone-number') {
+  //         print('The provided phone number is not valid.');
+  //       }
+  //     },
+  //     codeSent: (String verificationId, int? resendToken) {
+  //       // Save the verification ID and resend token to use later
+  //       _verificationCode = verificationId;
+  //     },
+  //     codeAutoRetrievalTimeout: (String verificationId) {
+  //       // Called when the auto-retrieval timer expires.
+  //       // Remove any UI that was being displayed to the user.
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -149,15 +176,100 @@ class _PhoneNumberRegistrationState extends State<PhoneNumberRegistration> {
                         right: MediaQuery.of(context).size.width / 3.5,
                       ),
                     ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const OTPPage(),
-                        ),
-                      );
-                    },
-                    child: const Text("S'authentifier"),
+                    onPressed: _isLoading
+                        ? null
+                        : () async {
+                            if (_formKey.currentState!.validate()) {
+                              // laoding true
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              await FirebaseAuth.instance.verifyPhoneNumber(
+                                timeout: const Duration(seconds: 60),
+                                phoneNumber: phoneNumber,
+                                verificationCompleted:
+                                    (PhoneAuthCredential credential) {},
+                                verificationFailed:
+                                    (FirebaseAuthException e) async {
+                                  // ignore: deprecated_member_use
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(e.message.toString()),
+                                    ),
+                                  );
+                                },
+                                codeSent: (String verificationId,
+                                    int? resendToken) async {
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => OTPPage(
+                                        phoneNumber: '$phoneNumber',
+                                        verificationId: verificationId,
+                                      ),
+                                    ),
+                                  );
+                                  // loading false
+                                },
+                                codeAutoRetrievalTimeout:
+                                    (String verificationId) {},
+                              );
+                            } else {}
+
+                            // if (_formKey.currentState!.validate()) {
+                            //   setState(() {
+                            //     _isLoading = true;
+                            //   });
+                            //   await _auth.verifyPhoneNumber(
+                            //     timeout: const Duration(seconds: 5),
+                            //     phoneNumber: phoneNumber,
+                            //     verificationCompleted:
+                            //         (PhoneAuthCredential credential) {
+                            //       _auth.signInWithCredential(credential);
+                            //     },
+                            //     verificationFailed:
+                            //         (FirebaseAuthException e) async {
+                            //       // ignore: deprecated_member_use
+                            //       _scaffoldKey.currentState!.showSnackBar(
+                            //         SnackBar(
+                            //           duration: const Duration(seconds: 5),
+                            //           content: Text(e.message.toString()),
+                            //         ),
+                            //       );
+                            //     },
+                            //     codeSent: (String verificationId,
+                            //         int? resendToken) async {
+                            //       setState(() {
+                            //         _isLoading = false;
+                            //       });
+                            //       Navigator.push(
+                            //         context,
+                            //         MaterialPageRoute(
+                            //           builder: (context) => OTPPage(
+                            //             phoneNumber: '$phoneNumber',
+                            //             verificationId: verificationId,
+                            //           ),
+                            //         ),
+                            //       );
+
+                            //       // loading false
+                            //     },
+                            //     codeAutoRetrievalTimeout:
+                            //         (String verificationId) {},
+                            //   );
+                            // } else {}
+                          },
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                            semanticsLabel: "Patienté",
+                            backgroundColor: Color.fromARGB(255, 199, 198, 198),
+                            color: Colors.black,
+                            strokeWidth: 3,
+                          )
+                        : const Text("S'authentifier"),
                   ),
                 ],
               ),
