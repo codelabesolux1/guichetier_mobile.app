@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:guichetier/pages/home/components/accueil/accueil.dart';
 import 'package:guichetier/pages/home/components/compte/compte_menu.dart';
-import 'package:guichetier/pages/home/components/events/events_menu.dart';
 import 'package:guichetier/pages/home/components/tickets/ticket_menu.dart';
+import 'package:guichetier/pages/home/components/vedette/vedette_menu.dart';
 import 'package:guichetier/providers/nav_bar_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -18,7 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Widget> menu = const [
     Accueil(),
-    EventMenu(),
+    VedetteMenu(),
     TicketMenu(),
     CompteMenu(),
   ];
@@ -67,9 +67,9 @@ class _HomePageState extends State<HomePage> {
             ),
             BottomNavigationBarItem(
               // backgroundColor: Color(0xFFDD3705),
-              label: "Event",
+              label: "Vedette",
               icon: Icon(
-                CupertinoIcons.calendar,
+                CupertinoIcons.bookmark_fill,
               ),
             ),
             BottomNavigationBarItem(

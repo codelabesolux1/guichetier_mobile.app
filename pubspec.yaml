@@ -44,6 +44,18 @@ dependencies:
   shared_preferences: ^2.0.20
   font_awesome_flutter: ^10.4.0
   cached_network_image: ^3.2.1
+  http: ^0.13.5
+  url_launcher: ^6.1.10
+  dropdown_search: ^4.0.0
+  shimmer: ^2.0.0
+  timeago: ^3.4.0
+  image_picker: ^0.8.7+1
+  path_provider: ^2.0.14
+  firebase_core: ^2.8.0
+  cloud_firestore: ^4.4.5
+  firebase_auth: ^4.2.2
+  firebase_database: ^10.0.16
+  firebase_storage: ^11.0.16
 
 dev_dependencies:
   flutter_test:
