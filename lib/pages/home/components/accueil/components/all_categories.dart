@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:guichetier/pages/home/components/accueil/components/all_event.dart';
+import 'package:guichetier/pages/home/components/accueil/components/custom_widget/custom_category_body.dart';
 
 class AllCategories {
   final categories = [
@@ -36,19 +37,19 @@ class AllCategories {
     AllEvent(),
     ///////////////////////////////////////////////////////////
     /// CONCERT //////////////////////////////////////
-    Text("Concert"),
+    CustomCategoryBody(categoryType: 'Concert'),
 
     /// FOIRE //////////////////////////////////////
-    Text("Foire"),
+    CustomCategoryBody(categoryType: "Foire"),
 
     /// MISS //////////////////////////////////////
-    Text("Miss"),
+    CustomCategoryBody(categoryType: "Miss"),
 
     /// CINEMA //////////////////////////////////////
-    Text("Cinema"),
+    CustomCategoryBody(categoryType: "Cinema"),
 
     /// SPORT //////////////////////////////////////
-    Text("Sport"),
+    CustomCategoryBody(categoryType: "Sport"),
 
     ///
   ];
