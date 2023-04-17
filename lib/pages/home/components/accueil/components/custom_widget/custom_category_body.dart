@@ -1,20 +1,39 @@
-import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
 
-class VedetteMenu extends StatelessWidget {
-  const VedetteMenu({super.key});
+import 'package:guichetier/pages/home/components/accueil/components/events_detail/event_detail.dart';
+
+class CustomCategoryBody extends StatelessWidget {
+  final String categoryType;
+  const CustomCategoryBody({
+    Key? key,
+    required this.categoryType,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Vedette"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(5),
-        child: ListView.builder(
+    String capitalize(String s) =>
+        s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : s;
+    return Padding(
+      padding: const EdgeInsets.all(5),
+      child: StreamBuilder<QuerySnapshot>(
+        stream:
+            FirebaseFirestore.instance.collectionGroup('events').snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Text("");
+          }
+          var events = snapshot.data!.docs.where((DocumentSnapshot document) {
+            Map<String, dynamic> documentSnapshot =
+                document.data()! as Map<String, dynamic>;
+            return documentSnapshot['category'] == categoryType;
+          }).toList();
+          return ListView(
             padding: const EdgeInsets.only(
               top: 0,
               bottom: 10,
@@ -22,8 +41,11 @@ class VedetteMenu extends StatelessWidget {
             scrollDirection: Axis.vertical,
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
-            itemCount: 2,
-            itemBuilder: (context, int index) {
+            children: events.map((DocumentSnapshot document) {
+              Map<String, dynamic> documentSnapshot =
+                  document.data()! as Map<String, dynamic>;
+              DateTime date =
+                  DateFormat('dd/MM/yyyy').parse(documentSnapshot["date"]);
               return Padding(
                 padding: const EdgeInsets.only(
                   top: 5,
@@ -31,11 +53,14 @@ class VedetteMenu extends StatelessWidget {
                 ),
                 child: GestureDetector(
                   onTap: () {
-                    // Navigator.of(context).push(
-                    //   MaterialPageRoute(
-                    //     builder: (context) => const EventDetail(),
-                    //   ),
-                    // );
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => EventDetail(
+                          enventUID: documentSnapshot["enventUID"],
+                          societeUID: documentSnapshot["societeUID"],
+                        ),
+                      ),
+                    );
                   },
                   child: Container(
                     decoration: const BoxDecoration(
@@ -64,8 +89,7 @@ class VedetteMenu extends StatelessWidget {
                           Stack(
                             children: [
                               CachedNetworkImage(
-                                imageUrl:
-                                    "https://www1.chester.ac.uk/sites/default/files/styles/hero/public/Events%20Management%20festival%20image.jpg?itok=eJ3k-5R6",
+                                imageUrl: documentSnapshot["afficheUrl"],
                                 fit: BoxFit.cover,
                                 placeholder: (context, url) => const Center(
                                   child: CircularProgressIndicator(),
@@ -90,15 +114,33 @@ class VedetteMenu extends StatelessWidget {
                                       )
                                     ],
                                   ),
-                                  child: const Padding(
-                                    padding: EdgeInsets.only(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
                                       top: 6,
                                       bottom: 6,
                                       left: 6,
                                       right: 6,
                                     ),
                                     child: Icon(
-                                      CupertinoIcons.music_albums,
+                                      documentSnapshot["category"] == "Concert"
+                                          ? CupertinoIcons.music_albums
+                                          : documentSnapshot["category"] ==
+                                                  "Foire"
+                                              ? Icons.stadium_outlined
+                                              : documentSnapshot["category"] ==
+                                                      "Miss"
+                                                  ? FontAwesomeIcons.crown
+                                                  : documentSnapshot[
+                                                              "category"] ==
+                                                          "Cinema"
+                                                      ? Icons.ondemand_video
+                                                      : documentSnapshot[
+                                                                  "category"] ==
+                                                              "Sport"
+                                                          ? CupertinoIcons
+                                                              .sportscourt_fill
+                                                          : CupertinoIcons
+                                                              .number_square,
                                       color: Colors.white70,
                                     ),
                                   ),
@@ -128,8 +170,8 @@ class VedetteMenu extends StatelessWidget {
                                       right: 6,
                                     ),
                                     child: Icon(
-                                      CupertinoIcons.bookmark_fill,
-                                      color: Color.fromARGB(255, 0, 151, 20),
+                                      CupertinoIcons.bookmark,
+                                      color: Colors.black,
                                     ),
                                   ),
                                 ),
@@ -158,13 +200,21 @@ class VedetteMenu extends StatelessWidget {
                                       right: 6,
                                     ),
                                     child: Column(
-                                      children: const [
+                                      children: [
                                         Text(
-                                          "24",
-                                          style: TextStyle(
+                                          DateFormat('dd', 'fr_FR').format(
+                                            date,
+                                          ),
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        Text("Ven"),
+                                        Text(
+                                          capitalize(
+                                            DateFormat('MMM', 'fr_FR').format(
+                                              date,
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -176,24 +226,24 @@ class VedetteMenu extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Padding(
-                                padding: EdgeInsets.all(6.0),
+                              Padding(
+                                padding: const EdgeInsets.all(6.0),
                                 child: Text(
-                                  "Loren Ispun ispun loren to go title",
-                                  style: TextStyle(
+                                  documentSnapshot["title"],
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
                               Row(
-                                children: const [
-                                  Icon(
+                                children: [
+                                  const Icon(
                                     Icons.location_on_sharp,
                                     color: Colors.grey,
                                   ),
                                   Text(
-                                    "Description de l'evenement",
-                                    style: TextStyle(
+                                    documentSnapshot["lieu"],
+                                    style: const TextStyle(
                                       color: Colors.grey,
                                       fontWeight: FontWeight.w300,
                                     ),
@@ -209,7 +259,9 @@ class VedetteMenu extends StatelessWidget {
                   ),
                 ),
               );
-            }),
+            }).toList(),
+          );
+        },
       ),
     );
   }

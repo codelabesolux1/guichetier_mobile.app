@@ -91,21 +91,22 @@ class _AccueilState extends State<Accueil> {
                       //   ),
                       // ),
                       StreamBuilder(
-                          stream: users.doc(uid).snapshots(),
-                          builder:
-                              (BuildContext context, AsyncSnapshot snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Text("");
-                            }
-                            return Text(
-                              snapshot.data.data()["username"]!.isEmpty
-                                  ? ""
-                                  : snapshot.data.data()["username"],
-                              style: GoogleFonts.poppins(
-                                  color: const Color(0xFFE0E0E0)),
-                            );
-                          }),
+                        stream: users.doc(uid).snapshots(),
+                        builder:
+                            (BuildContext context, AsyncSnapshot snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Text("");
+                          }
+                          return Text(
+                            snapshot.data.data()["username"]!.isEmpty
+                                ? ""
+                                : snapshot.data.data()["username"],
+                            style: GoogleFonts.poppins(
+                                color: const Color(0xFFE0E0E0)),
+                          );
+                        },
+                      ),
 
                       IconButton(
                         onPressed: () {},

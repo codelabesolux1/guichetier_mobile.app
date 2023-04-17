@@ -20,7 +20,8 @@ class DetailSliverDelegate extends SliverPersistentHeaderDelegate {
         CachedNetworkImage(
           imageUrl: imageurl,
           fit: BoxFit.cover,
-          height: MediaQuery.of(context).size.height / 3,
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height / 2.5,
           placeholder: (context, url) => const Center(
             child: CircularProgressIndicator(),
           ),
