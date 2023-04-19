@@ -1,10 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
-class MyTicketDetail extends StatelessWidget {
-  const MyTicketDetail({super.key});
+class MyTicketDetail extends StatefulWidget {
+  final String uidEvent;
+  final String uidSociete;
+  const MyTicketDetail({
+    Key? key,
+    required this.uidEvent,
+    required this.uidSociete,
+  }) : super(key: key);
 
+  @override
+  State<MyTicketDetail> createState() => _MyTicketDetailState();
+}
+
+class _MyTicketDetailState extends State<MyTicketDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,130 +55,172 @@ class MyTicketDetail extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection("societe")
+                          .doc(widget.uidSociete)
+                          .collection("events")
+                          .doc(widget.uidEvent)
+                          .get(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<DocumentSnapshot> snapshot) {
+                        if (snapshot.hasError) {
+                          return const Text("Une erreur s'est produite");
+                        }
+
+                        if (snapshot.hasData && !snapshot.data!.exists) {
+                          return const Center(child: Text("Pas de Tickets"));
+                        }
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Text("Connexion waiting");
+                        }
+                        Map<String, dynamic> data =
+                            snapshot.data!.data() as Map<String, dynamic>;
+                        DateTime date =
+                            DateFormat('dd/MM/yyyy').parse(data["date"]);
+                        return Column(
                           children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(300),
-                                  border: Border.all(
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Icon(Icons.arrow_back),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {},
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(300),
-                                  border: Border.all(
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Icon(Icons.file_download_outlined),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  "Scanner ce code QR",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Gap(14),
-                                const Icon(
-                                  Icons.qr_code_2_sharp,
-                                  size: 300,
-                                  color: Color(0xDD161616),
-                                ),
-                                Gap(MediaQuery.of(context).size.height / 6),
-                                const Text(
-                                  "Loren Ispun ispun loren to go title",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Gap(15),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: const Color(0x1CDD3705),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(300),
+                                      border: Border.all(
+                                        color: Colors.black54,
+                                      ),
                                     ),
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: const Color(0x5ACACACA),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Icon(Icons.arrow_back),
+                                    ),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: const [
-                                                Icon(
-                                                  FontAwesomeIcons.calendar,
-                                                  color: Color(0xFF585858),
-                                                ),
-                                                Gap(8),
-                                                Text("30 avr 2023"),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: const [
-                                                Icon(
-                                                  FontAwesomeIcons.clock,
-                                                  color: Color(0xFF585858),
-                                                ),
-                                                Gap(8),
-                                                Text("15h30"),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        const Gap(30),
-                                        Row(
-                                          children: const [
-                                            Icon(
-                                              FontAwesomeIcons.locationDot,
-                                              color: Color(0xFF585858),
-                                            ),
-                                            Gap(8),
-                                            Text(
-                                                "Lieu où se fera l'evenenment"),
-                                          ],
-                                        ),
-                                      ],
+                                ),
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(300),
+                                      border: Border.all(
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Icon(Icons.file_download_outlined),
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                        ),
-                      ],
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      "Scanner ce code QR",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Gap(
+                                      MediaQuery.of(context).size.height / 20,
+                                    ),
+                                    QrImage(
+                                      backgroundColor: Colors.transparent,
+                                      // backgroundColor: const Color.fromARGB(
+                                      //     255, 216, 216, 216),
+                                      data: widget.uidEvent,
+                                      version: QrVersions.auto,
+                                      size: MediaQuery.of(context).size.width /
+                                          1.3,
+                                      gapless: false,
+                                    ),
+                                    Gap(MediaQuery.of(context).size.height /
+                                        5.5),
+                                    Text(
+                                      data["title"],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const Gap(15),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: const Color(0x1CDD3705),
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: const Color(0x5ACACACA),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    const Icon(
+                                                      FontAwesomeIcons.calendar,
+                                                      color: Color(0xFF585858),
+                                                    ),
+                                                    const Gap(8),
+                                                    Text(
+                                                      (DateFormat('dd MMM yyyy',
+                                                              'fr_FR')
+                                                          .format(
+                                                        date,
+                                                      )),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Icon(
+                                                      FontAwesomeIcons.clock,
+                                                      color: Color(0xFF585858),
+                                                    ),
+                                                    const Gap(8),
+                                                    Text(data["heure"]),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            const Gap(30),
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                  FontAwesomeIcons.locationDot,
+                                                  color: Color(0xFF585858),
+                                                ),
+                                                const Gap(8),
+                                                Text(
+                                                  data["lieu"],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ),

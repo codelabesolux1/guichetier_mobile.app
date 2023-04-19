@@ -61,6 +61,11 @@ class _EventDetailState extends State<EventDetail> {
           Map<String, dynamic> eventDetail =
               snapshot.data!.data() as Map<String, dynamic>;
           DateTime date = DateFormat('dd/MM/yyyy').parse(eventDetail["date"]);
+
+          List<dynamic> priceList = [];
+          for (var element in List.from(eventDetail['price'])) {
+            priceList.add(element);
+          }
           return CustomScrollView(
             slivers: [
               SliverPersistentHeader(
@@ -181,6 +186,7 @@ class _EventDetailState extends State<EventDetail> {
                           fontSize: 18,
                         ),
                       ),
+
                       // ignore: prefer_const_constructors
                       Text(
                         // textAlign: TextAlign.justify,
@@ -253,29 +259,25 @@ class _EventDetailState extends State<EventDetail> {
                         crossAxisSpacing: 10,
                         shrinkWrap: true,
                         crossAxisCount: 2,
-                        childAspectRatio: (1 / .35),
+                        childAspectRatio: (1 / .25),
                         padding: const EdgeInsets.only(
                           bottom: 2,
                         ),
                         physics: const NeverScrollableScrollPhysics(),
-                        // gridDelegate:
-                        //     const SliverGridDelegateWithFixedCrossAxisCount(
-                        //   crossAxisCount: 2,
-                        // ),
-                        children: [
-                          ElevatedButton(
+                        children: priceList.map((elementList) {
+                          return ElevatedButton(
                             onPressed: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => const PayementTicket(
-                                    imageUrl:
-                                        "https://www1.chester.ac.uk/sites/default/files/styles/hero/public/Events%20Management%20festival%20image.jpg?itok=eJ3k-5R6",
-                                    price: 3000,
-                                    typeTicket: "Ticket simple",
+                                  builder: (context) => PayementTicket(
+                                    imageUrl: eventDetail['afficheUrl'],
+                                    enventUID: widget.enventUID,
+                                    societeUID: widget.societeUID,
+                                    price: elementList,
                                   ),
                                 ),
                               );
-                              providePayementTicket.montantTotal = 3000;
+                              providePayementTicket.montantTotal = elementList;
                             },
                             style: ElevatedButton.styleFrom(
                               shape: RoundedRectangleBorder(
@@ -287,76 +289,14 @@ class _EventDetailState extends State<EventDetail> {
                             child: Padding(
                               padding: const EdgeInsets.all(6.0),
                               child: Column(
-                                children: const [
-                                  Text("Ticket simple"),
-                                  Text("3000 CFA"),
+                                children: [
+                                  const Gap(5),
+                                  Text("$elementList CFA"),
                                 ],
                               ),
                             ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => const PayementTicket(
-                                    imageUrl:
-                                        "https://www1.chester.ac.uk/sites/default/files/styles/hero/public/Events%20Management%20festival%20image.jpg?itok=eJ3k-5R6",
-                                    price: 5000,
-                                    typeTicket: "Ticket VIP",
-                                  ),
-                                ),
-                              );
-                              providePayementTicket.montantTotal = 5000;
-                            },
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5.0),
-                                side:
-                                    const BorderSide(color: Color(0x52F44336)),
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Column(
-                                children: const [
-                                  Text("Ticket VIP"),
-                                  Text("5000 CFA"),
-                                ],
-                              ),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => const PayementTicket(
-                                    imageUrl:
-                                        "https://www1.chester.ac.uk/sites/default/files/styles/hero/public/Events%20Management%20festival%20image.jpg?itok=eJ3k-5R6",
-                                    price: 10000,
-                                    typeTicket: "Réservation",
-                                  ),
-                                ),
-                              );
-                              providePayementTicket.montantTotal = 10000;
-                            },
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5.0),
-                                side:
-                                    const BorderSide(color: Color(0x52F44336)),
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Column(
-                                children: const [
-                                  Text("Réservation"),
-                                  Text("10000 CFA"),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                          );
+                        }).toList(),
                       ),
 
                       const Gap(8),

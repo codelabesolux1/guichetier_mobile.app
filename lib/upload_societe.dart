@@ -19,6 +19,20 @@ class UplodSociete extends StatelessWidget {
     });
   }
 
+  uploadTicket(String logoUrl, String raisonSocial) async {
+    // ignore: avoid_print
+    print(" \n Lancement \n");
+    await FirebaseFirestore.instance.collection("users").doc("").collection("tickets").add({
+      "uidEvent": raisonSocial,
+      "uidTicket": "",
+      "quantite": logoUrl,
+      "date": Timestamp.now(),
+    }).then((value) {
+      // ignore: avoid_print
+      print("valider");
+    });
+  }
+
   uploadEvent(
     String enventUID,
     String title,

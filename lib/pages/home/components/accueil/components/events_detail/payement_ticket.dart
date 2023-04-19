@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,13 +10,15 @@ import 'package:provider/provider.dart';
 
 class PayementTicket extends StatefulWidget {
   final String imageUrl;
+  final String enventUID;
+  final String societeUID;
   final int price;
-  final String typeTicket;
 
   const PayementTicket({
     Key? key,
+    required this.enventUID,
+    required this.societeUID,
     required this.imageUrl,
-    required this.typeTicket,
     required this.price,
   }) : super(key: key);
 
@@ -44,7 +48,8 @@ class _PayementTicketState extends State<PayementTicket> {
           Stack(
             children: [
               CachedNetworkImage(
-                height: MediaQuery.of(context).size.height / 2.8,
+                // height: MediaQuery.of(context).size.height / 2.3,
+                width: double.infinity,
                 imageUrl: widget.imageUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => const Center(
@@ -73,131 +78,125 @@ class _PayementTicketState extends State<PayementTicket> {
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.typeTicket,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Ticket à scanner sur place",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
-                  const Gap(5),
-                  const Text(
-                    "Ticket à scanner sur place",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const Divider(),
-                  const Gap(5),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: const Color.fromARGB(96, 221, 55, 5),
+                    const Divider(),
+                    const Gap(5),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: const Color.fromARGB(96, 221, 55, 5),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  FontAwesomeIcons.tag,
+                                  color: Color(0xFFDD3705),
+                                ),
+                                const Gap(8),
+                                Text(
+                                  "${widget.price} F",
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(
-                                FontAwesomeIcons.tag,
-                                color: Color(0xFFDD3705),
-                              ),
-                              const Gap(8),
-                              Text(
-                                "${widget.price} F",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
+                        Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(300),
+                                border: Border.all(
+                                  width: 2,
+                                  color: nbrticket == 1
+                                      ? Colors.grey
+                                      : const Color(0xFFDD3705),
                                 ),
                               ),
-                            ],
-                          ),
+                              child: IconButton(
+                                onPressed: nbrticket == 1
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          nbrticket--;
+                                          providePayementTicket.montantTotal =
+                                              widget.price * nbrticket;
+                                        });
+                                      },
+                                icon: Icon(
+                                  FontAwesomeIcons.minus,
+                                  color: nbrticket == 1
+                                      ? Colors.grey
+                                      : const Color(0xFFDD3705),
+                                ),
+                              ),
+                            ),
+                            const Gap(8),
+                            Text(
+                              "$nbrticket",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const Gap(8),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(300),
+                                border: Border.all(
+                                  width: 2,
+                                  color: nbrticket == 10
+                                      ? Colors.grey
+                                      : const Color(0xFFDD3705),
+                                ),
+                              ),
+                              child: IconButton(
+                                onPressed: nbrticket == 10
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          nbrticket++;
+                                          providePayementTicket.montantTotal =
+                                              widget.price * nbrticket;
+                                        });
+                                      },
+                                icon: Icon(
+                                  Icons.add,
+                                  color: nbrticket == 10
+                                      ? Colors.grey
+                                      : const Color(0xFFDD3705),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(300),
-                              border: Border.all(
-                                width: 2,
-                                color: nbrticket == 1
-                                    ? Colors.grey
-                                    : const Color(0xFFDD3705),
-                              ),
-                            ),
-                            child: IconButton(
-                              onPressed: nbrticket == 1
-                                  ? null
-                                  : () {
-                                      setState(() {
-                                        nbrticket--;
-                                        providePayementTicket.montantTotal =
-                                            widget.price * nbrticket;
-                                      });
-                                    },
-                              icon: Icon(
-                                FontAwesomeIcons.minus,
-                                color: nbrticket == 1
-                                    ? Colors.grey
-                                    : const Color(0xFFDD3705),
-                              ),
-                            ),
-                          ),
-                          const Gap(8),
-                          Text(
-                            "$nbrticket",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const Gap(8),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(300),
-                              border: Border.all(
-                                width: 2,
-                                color: nbrticket == 10
-                                    ? Colors.grey
-                                    : const Color(0xFFDD3705),
-                              ),
-                            ),
-                            child: IconButton(
-                              onPressed: nbrticket == 10
-                                  ? null
-                                  : () {
-                                      setState(() {
-                                        nbrticket++;
-                                        providePayementTicket.montantTotal =
-                                            widget.price * nbrticket;
-                                      });
-                                    },
-                              icon: Icon(
-                                Icons.add,
-                                color: nbrticket == 10
-                                    ? Colors.grey
-                                    : const Color(0xFFDD3705),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const Gap(5),
-                  const Divider(),
-                ],
+                      ],
+                    ),
+                    const Gap(5),
+                    const Divider(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -212,7 +211,28 @@ class _PayementTicketState extends State<PayementTicket> {
                     right: MediaQuery.of(context).size.width / 3.3,
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () async {
+                  // print("Validé");
+                  await FirebaseFirestore.instance
+                      .collection("users")
+                      .doc(FirebaseAuth.instance.currentUser!.uid.toString())
+                      .collection("tickets")
+                      .add({
+                    "uidEvent": widget.enventUID,
+                    "uidSociete": widget.societeUID,
+                    "total": providePayementTicket.montantTotal,
+                    "quantite": nbrticket,
+                    "date": Timestamp.now(),
+                  }).then((value) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Ticket payer"),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                    Navigator.of(context).pop();
+                  });
+                },
                 child: Text(
                   "Payer • ${providePayementTicket.montantTotal} F",
                   style: const TextStyle(
