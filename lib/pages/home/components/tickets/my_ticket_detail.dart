@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
@@ -8,10 +9,12 @@ import 'package:qr_flutter/qr_flutter.dart';
 class MyTicketDetail extends StatefulWidget {
   final String uidEvent;
   final String uidSociete;
+  final int montantTicket;
   const MyTicketDetail({
     Key? key,
     required this.uidEvent,
     required this.uidSociete,
+    required this.montantTicket,
   }) : super(key: key);
 
   @override
@@ -129,27 +132,24 @@ class _MyTicketDetailState extends State<MyTicketDetail> {
                                       ),
                                     ),
                                     Gap(
-                                      MediaQuery.of(context).size.height / 20,
+                                      MediaQuery.of(context).size.height / 30,
                                     ),
                                     QrImage(
                                       backgroundColor: Colors.transparent,
-                                      // backgroundColor: const Color.fromARGB(
-                                      //     255, 216, 216, 216),
-                                      data: widget.uidEvent,
+                                      data: snapshot.data!.id,
                                       version: QrVersions.auto,
                                       size: MediaQuery.of(context).size.width /
                                           1.3,
                                       gapless: false,
                                     ),
-                                    Gap(MediaQuery.of(context).size.height /
-                                        5.5),
+                                    Gap(MediaQuery.of(context).size.height / 6),
                                     Text(
                                       data["title"],
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    const Gap(15),
+                                    const Gap(8),
                                     Container(
                                       decoration: BoxDecoration(
                                         border: Border.all(
@@ -197,7 +197,7 @@ class _MyTicketDetailState extends State<MyTicketDetail> {
                                                 ),
                                               ],
                                             ),
-                                            const Gap(30),
+                                            const Gap(20),
                                             Row(
                                               children: [
                                                 const Icon(
@@ -207,6 +207,24 @@ class _MyTicketDetailState extends State<MyTicketDetail> {
                                                 const Gap(8),
                                                 Text(
                                                   data["lieu"],
+                                                ),
+                                              ],
+                                            ),
+                                            const Gap(20),
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                  CupertinoIcons.tickets,
+                                                  color: Color(0xFF585858),
+                                                ),
+                                                const Gap(8),
+                                                Text(
+                                                  "${widget.montantTicket} CFA",
+                                                  style: const TextStyle(
+                                                    color: Color(0xFFDD3705),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 16,
+                                                  ),
                                                 ),
                                               ],
                                             ),

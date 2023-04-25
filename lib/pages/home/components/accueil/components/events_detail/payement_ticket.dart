@@ -8,6 +8,8 @@ import 'package:gap/gap.dart';
 import 'package:guichetier/providers/payement_ticket_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'component/generate_ticket.dart';
+
 class PayementTicket extends StatefulWidget {
   final String imageUrl;
   final String enventUID;
@@ -31,6 +33,7 @@ class _PayementTicketState extends State<PayementTicket> {
 
   @override
   Widget build(BuildContext context) {
+    final provideChoix = Provider.of<PayementTicketProvider>(context);
     final providePayementTicket = Provider.of<PayementTicketProvider>(context);
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -94,104 +97,30 @@ class _PayementTicketState extends State<PayementTicket> {
                     ),
                     const Divider(),
                     const Gap(5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: const Color.fromARGB(96, 221, 55, 5),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  FontAwesomeIcons.tag,
-                                  color: Color(0xFFDD3705),
-                                ),
-                                const Gap(8),
-                                Text(
-                                  "${widget.price} F",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Row(
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: const Color.fromARGB(96, 221, 55, 5),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(300),
-                                border: Border.all(
-                                  width: 2,
-                                  color: nbrticket == 1
-                                      ? Colors.grey
-                                      : const Color(0xFFDD3705),
-                                ),
-                              ),
-                              child: IconButton(
-                                onPressed: nbrticket == 1
-                                    ? null
-                                    : () {
-                                        setState(() {
-                                          nbrticket--;
-                                          providePayementTicket.montantTotal =
-                                              widget.price * nbrticket;
-                                        });
-                                      },
-                                icon: Icon(
-                                  FontAwesomeIcons.minus,
-                                  color: nbrticket == 1
-                                      ? Colors.grey
-                                      : const Color(0xFFDD3705),
-                                ),
-                              ),
+                            const Icon(
+                              FontAwesomeIcons.tag,
+                              color: Color(0xFFDD3705),
                             ),
                             const Gap(8),
                             Text(
-                              "$nbrticket",
+                              "${widget.price} F",
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const Gap(8),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(300),
-                                border: Border.all(
-                                  width: 2,
-                                  color: nbrticket == 10
-                                      ? Colors.grey
-                                      : const Color(0xFFDD3705),
-                                ),
-                              ),
-                              child: IconButton(
-                                onPressed: nbrticket == 10
-                                    ? null
-                                    : () {
-                                        setState(() {
-                                          nbrticket++;
-                                          providePayementTicket.montantTotal =
-                                              widget.price * nbrticket;
-                                        });
-                                      },
-                                icon: Icon(
-                                  Icons.add,
-                                  color: nbrticket == 10
-                                      ? Colors.grey
-                                      : const Color(0xFFDD3705),
-                                ),
                               ),
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                     const Gap(5),
                     const Divider(),
@@ -211,27 +140,204 @@ class _PayementTicketState extends State<PayementTicket> {
                     right: MediaQuery.of(context).size.width / 3.3,
                   ),
                 ),
-                onPressed: () async {
+                onPressed: () {
                   // print("Validé");
-                  await FirebaseFirestore.instance
-                      .collection("users")
-                      .doc(FirebaseAuth.instance.currentUser!.uid.toString())
-                      .collection("tickets")
-                      .add({
-                    "uidEvent": widget.enventUID,
-                    "uidSociete": widget.societeUID,
-                    "total": providePayementTicket.montantTotal,
-                    "quantite": nbrticket,
-                    "date": Timestamp.now(),
-                  }).then((value) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Ticket payer"),
-                        duration: Duration(seconds: 3),
-                      ),
-                    );
-                    Navigator.of(context).pop();
-                  });
+
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        contentPadding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        content: SizedBox(
+                          height: 230.0,
+                          width: 320.0,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Sélectionnez le destinataire',
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 20.0),
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        String ticketGenerate =
+                                            generateTicketId();
+                                        provideChoix.nouveauChoix = 1;
+                                        Navigator.of(context).pop();
+                                        // ignore: avoid_print
+                                        print("id du ticket : $ticketGenerate");
+                                        await FirebaseFirestore.instance
+                                            .collection("tickets")
+                                            .add({
+                                          "uidUser": FirebaseAuth
+                                              .instance.currentUser!.uid
+                                              .toString(),
+                                          "uidEvent": widget.enventUID,
+                                          "uidSociete": widget.societeUID,
+                                          "ticketGenerate": ticketGenerate,
+                                          "montantTicket": providePayementTicket
+                                              .montantTotal,
+                                          "date": Timestamp.now(),
+                                        }).then((value) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text("Ticket payer"),
+                                              duration: Duration(seconds: 3),
+                                            ),
+                                          );
+                                          Navigator.of(context).pop();
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.only(
+                                          left: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              6,
+                                          right: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              6,
+                                        ),
+                                        primary: Colors.green,
+                                        onPrimary: Colors.white,
+                                      ),
+                                      child: const Text('Pour moi-même'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        provideChoix.nouveauChoix = 2;
+
+                                        String ticketGenerate =
+                                            generateTicketId();
+                                        Navigator.of(context).pop();
+                                        await showModalBottomSheet(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return Column(
+                                              children: [
+                                                const Gap(20),
+                                                const Text(
+                                                  "Code du ticket",
+                                                ),
+                                                const Gap(15),
+                                                Text(
+                                                  "Ref : $ticketGenerate",
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                                const Gap(15),
+                                                ElevatedButton(
+                                                  onPressed: () async {
+                                                    await Clipboard.setData(
+                                                            ClipboardData(
+                                                                text:
+                                                                    ticketGenerate))
+                                                        .then((result) {
+                                                      Navigator.pop(context);
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text(
+                                                              'Copié dans le presse-papiers !'),
+                                                          duration: Duration(
+                                                              seconds: 3),
+                                                        ),
+                                                      );
+                                                    });
+                                                  },
+                                                  child: const Text('COPIER'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ).then((value) async {
+                                          await FirebaseFirestore.instance
+                                              .collection("tickets")
+                                              .add({
+                                            "uidUser": "",
+                                            "uidEvent": widget.enventUID,
+                                            "uidSociete": widget.societeUID,
+                                            "ticketGenerate": ticketGenerate,
+                                            "montantTicket":
+                                                providePayementTicket
+                                                    .montantTotal,
+                                            "date": Timestamp.now(),
+                                          });
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.only(
+                                          left: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              12,
+                                          right: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              12,
+                                        ),
+                                        primary: Colors.blue,
+                                        onPrimary: Colors.white,
+                                      ),
+                                      child:
+                                          const Text('Pour une autre personne'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 20.0),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Fermer'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+
+                  // await FirebaseFirestore.instance
+                  //     .collection("users")
+                  //     .doc(FirebaseAuth.instance.currentUser!.uid.toString())
+                  //     .collection("tickets")
+                  //     .add({
+                  //   "uidUser":
+                  //       FirebaseAuth.instance.currentUser!.uid.toString(),
+                  //   "uidEvent": widget.enventUID,
+                  //   "uidSociete": widget.societeUID,
+                  //   "ticketGenerate": generateTicketId(),
+                  //   "montantTicket": providePayementTicket.montantTotal,
+                  //   "date": Timestamp.now(),
+                  // }).then((value) {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     const SnackBar(
+                  //       content: Text("Ticket payer"),
+                  //       duration: Duration(seconds: 3),
+                  //     ),
+                  //   );
+                  //   Navigator.of(context).pop();
+                  // });
                 },
                 child: Text(
                   "Payer • ${providePayementTicket.montantTotal} F",
